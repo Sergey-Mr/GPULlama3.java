@@ -11,6 +11,7 @@ import uk.ac.manchester.tornado.api.types.arrays.FloatArray;
 import uk.ac.manchester.tornado.api.types.arrays.IntArray;
 
 import org.beehive.gpullama3.tornadovm.kernels.TransformerComputeKernelsLayered;
+import uk.ac.manchester.tornado.api.exceptions.TornadoExecutionPlanException;
 
 /**
  * Utility class to generate OpenCL kernel for processHeadsFlashAttention.
@@ -35,7 +36,7 @@ public class FlashAttentionKernelGenerator {
     private static final int CONTEXT_LENGTH = 8192;
     private static final int LAYER = 0;
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws TornadoExecutionPlanException {
         // Create dummy arrays with realistic sizes
         FloatArray q = new FloatArray(N_HEADS * HEAD_SIZE);
         FloatArray keyCache = new FloatArray(32 * CONTEXT_LENGTH * KV_DIM);  // layers * contextLength * kvDim
