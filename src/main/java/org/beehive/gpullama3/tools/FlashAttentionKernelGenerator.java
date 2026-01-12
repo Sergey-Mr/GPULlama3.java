@@ -53,6 +53,13 @@ public class FlashAttentionKernelGenerator {
 
         KernelContext context = new KernelContext();
 
+        // Configure grid: nHeads workgroups, headSize local threads
+        WorkerGrid1D workerGrid = new WorkerGrid1D(N_HEADS * HEAD_SIZE);
+        workerGrid.setLocalWork(HEAD_SIZE, 1, 1);
+
+        // GridScheduler with task name in constructor (TornadoVM 2.2.0 API)
+        GridScheduler gridScheduler = new GridScheduler("flashAttention.processHeadsFlashAttention", workerGrid);
+
         // Create TaskGraph
         TaskGraph taskGraph = new TaskGraph("flashAttention")
                 .transferToDevice(DataTransferMode.FIRST_EXECUTION, q, keyCache, valueCache, positionHolder)
@@ -65,13 +72,6 @@ public class FlashAttentionKernelGenerator {
                 .transferToHost(DataTransferMode.EVERY_EXECUTION, xb);
 
         ImmutableTaskGraph immutableTaskGraph = taskGraph.snapshot();
-
-        // Configure grid: nHeads workgroups, headSize local threads
-        WorkerGrid1D workerGrid = new WorkerGrid1D(N_HEADS * HEAD_SIZE);
-        workerGrid.setLocalWork(HEAD_SIZE, 1, 1);
-
-        GridScheduler gridScheduler = new GridScheduler();
-        gridScheduler.setWorkerGrid("flashAttention.processHeadsFlashAttention", workerGrid);
 
         // Execute (this will trigger kernel compilation and printing with --printKernel)
         try (TornadoExecutionPlan executionPlan = new TornadoExecutionPlan(immutableTaskGraph)) {
