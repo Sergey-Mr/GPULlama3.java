@@ -636,6 +636,13 @@ public class TransformerComputeKernelsLayered {
         }
     }
 
+    /*
+        1. apply optimizations one by one and compare performance
+        2. compile and compare NBody
+        3. cc processHeadsFlashAttention.
+        4. Do the same for Macbook
+     */
+
     public static void processHeadsFlashAttention(KernelContext context, FloatArray q, FloatArray key_cache, FloatArray value_cache, FloatArray xb, int nHeads, int headSize, int kvDim, int kvMul,
             IntArray positionHolder, int layer, int contextLength) {
 
